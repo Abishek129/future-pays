@@ -156,10 +156,8 @@ class GoogleSignupAPIView(APIView):
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"error": "User with email already exists"}, status=400)
 
-            user, created = User.objects.create(email=email, defaults={
-                'name': name,
-                'image': picture,
-            })
+            user, created = User.objects.create(email=email,
+            )
 
             if created:
                 user.set_unusable_password()
