@@ -22,9 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-rrx!+$4&3w0_qa6$#2kqzb53zqp@63mx_5ef8qrw&+m$*8i365'
 
-DEBUG = True
+DEBUG = False  # in production
+ALLOWED_HOSTS = ['*']  # or your Render subdomain
 
-ALLOWED_HOSTS = ['316c-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app', '127.0.0.1', 'localhost']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -96,15 +96,14 @@ import dj_database_url
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'future_pays',  # Your database name
-        'USER': 'abish',       # Your PostgreSQL username
-        'PASSWORD': 'newpassword',  # Your PostgreSQL password
-        'HOST': 'localhost',      # Change if running on a different host
-        'PORT': '5432',           # Default PostgreSQL port
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
+
 
 
 # Password validation
