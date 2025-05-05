@@ -30,7 +30,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost", 
     "https://98ca-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app", 
-    "https://316c-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app"  # Allow requests from React frontend
+    "https://316c-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app",
+    "http://localhost:5173/"  # Allow requests from React frontend
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
@@ -52,8 +53,21 @@ INSTALLED_APPS = [
     'products',
     'customers',
     'admin_functions',
+    'channels',
     
 ]
+
+ASGI_APPLICATION = 'future_pays.asgi.application'
+
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -103,6 +117,15 @@ DATABASES = {
     )
 }
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 
 
