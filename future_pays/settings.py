@@ -31,7 +31,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost", 
     "https://98ca-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app", 
     "https://316c-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app",
-    "http://localhost:5173/"  # Allow requests from React frontend
+    "http://localhost:5173"  # Allow requests from React frontend
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
