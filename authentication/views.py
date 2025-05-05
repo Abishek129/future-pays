@@ -11,9 +11,7 @@ from firebase_admin import auth, credentials
 from .models import CustomerPool
 
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate("D:/Future_Pays/futurepays-firebase-adminsdk-fbsvc-5ff6d6dde2.json")
-    firebase_admin.initialize_app(cred)
+
 
 User = get_user_model()
 
@@ -28,147 +26,9 @@ def generate_unique_referral_code():
             return code
     raise Exception("Failed to generate unique referral code after 5 attempts.")
 
-@csrf_exempt  # Replace with proper authentication in production
-def verify_token(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-            id_token = body.get("id_token")
-            input_referral_code = body.get("referral_code")
-
-            decoded_token = auth.verify_id_token(id_token)
-            uid = decoded_token.get("uid")
-            email = decoded_token.get("email")
-            local_part = email.split("@")[0]
-
-            # Check if user exists
-            if User.objects.filter(email=email).exists():
-                return JsonResponse({"error": "User with email already exists"}, status=400)
-
-            # Create user
-            user = User.objects.create(
-                email=email,
-                firebase_uid=uid,
-                name=local_part
-            )
-
-            # Determine referred_by
-            if input_referral_code:
-                try:
-                    referred_by = Referral.objects.get(referral_code=input_referral_code).user
-                except Referral.DoesNotExist:
-                    return JsonResponse({"error": "Invalid referral code."}, status=400)
-            else:
-                referred_by = get_default_admin()
-
-            # Create referral
-            Referral.objects.create(
-                user=user,
-                referred_by=referred_by,
-                referral_code=generate_unique_referral_code()
-            )
-
-            # Create customer pool
-            CustomerPool.objects.create(
-                owner=user  # Assign the signed-up user
-                # All other fields take default values
-            )
-
-            return JsonResponse({"status": "success", "uid": uid})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-# Sign ins
-
-@csrf_exempt  # Consider replacing with proper authentication for production
-def sign_in_verify_token(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-            id_token = body.get("id_token")
-            input_referral_code = body.get("referral_code")
-
-            decoded_token = auth.verify_id_token(id_token)
-            print("decoded_token")
-            uid = decoded_token.get("uid")
-            email = decoded_token.get("email")
-            local_part = email.split("@")[0]
-
-            # Get or create the user
-            if not User.objects.filter(email = email).exists:
-                return JsonResponse({"error": " User with email doesnot  exists"}, status=400)
-            user = User.objects.get(email=email)
-
-            
-                # Determine referred_by
-            
-
-            return JsonResponse({"status": "success", "uid": uid})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=405)
-
-@csrf_exempt
-def signup_verify_token(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-            id_token = body.get("id_token")
-            decoded_token = auth.verify_id_token(id_token)
-            uid = decoded_token.get("uid")
-            email = decoded_token.get("email")
-
-            # Check if a user with this email already exists.
-            try:
-                existing_user = User.objects.get(email=email)
-                # If the user already exists, return an error message.
-                return JsonResponse({
-                    "error": "User already exists. Please log in instead."
-                }, status=400)
-            except User.DoesNotExist:
-                # Create a new user if no account exists.
-                user = User.objects.create(username=uid, email=email)
-                # Optionally, perform Django login here if you are using session authentication.
-                return JsonResponse({
-                    "status": "success",
-                    "message": "User created and logged in.",
-                    "uid": uid
-                })
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 
-@csrf_exempt
-def login_user(request):
-    if request.method == "POST":
-        try:
-            body = json.loads(request.body)
-            id_token = body.get("id_token")
-
-            # Verify Firebase ID token
-            decoded_token = auth.verify_id_token(id_token)
-            uid = decoded_token.get("uid")
-            email = decoded_token.get("email")
-
-            # Get or create Django user
-            user, created = User.objects.get_or_create(username=uid, defaults={'email': email})
-
-            return JsonResponse({
-                "status": "success",
-                "uid": uid,
-                "email": email,
-                "created": created
-            })
-
-        except Exception as e:
-            traceback.print_exc()
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Only POST method allowed"}, status=405)
 
 
 
