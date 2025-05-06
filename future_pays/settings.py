@@ -106,6 +106,14 @@ DATABASES = {
 }
 
 
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=360),  # Increase as needed
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}
+
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
