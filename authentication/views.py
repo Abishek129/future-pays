@@ -38,7 +38,7 @@ def generate_unique_referral_code():
 from rest_framework import viewsets, permissions
 from .models import Address, Referral
 from .serializers import AddressSerializer, AdminReferralSerializer
-
+from rest_framework import generics, permissions
 class AddressViewSet(viewsets.ModelViewSet):
     serializer_class = AddressSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -104,7 +104,7 @@ def update_user_profile(request):
 
 
 
-from rest_framework import generics, permissions
+
 
 class AdminReferralCreateView(generics.CreateAPIView):
     queryset = Referral.objects.all()
