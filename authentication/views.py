@@ -50,6 +50,12 @@ class AddressViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class UserAddressListAPIView(generics.ListAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
 
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
@@ -94,6 +100,7 @@ def update_user_profile(request):
         "status": "success",
         "message": "User profile updated"
     }, status=status.HTTP_200_OK)
+
 
 
 
