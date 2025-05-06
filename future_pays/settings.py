@@ -22,15 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-rrx!+$4&3w0_qa6$#2kqzb53zqp@63mx_5ef8qrw&+m$*8i365'
 
-DEBUG = False  # in production
+DEBUG = True  # in production
 ALLOWED_HOSTS = ['*']  # or your Render subdomain
 
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://localhost", 
-    "https://98ca-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app", 
-    "https://316c-2405-201-c004-c07f-a550-1eb-3ac2-65c9.ngrok-free.app",
+    "http://localhost",
     "http://localhost:5173"  # Allow requests from React frontend
 ]
 
@@ -100,12 +98,16 @@ import dj_database_url
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'future_pays',  # Your database name
+        'USER': 'abish',       # Your PostgreSQL username
+        'PASSWORD': 'newpassword',  # Your PostgreSQL password
+        'HOST': 'localhost',      # Change if running on a different host
+        'PORT': '5432',           # Default PostgreSQL port
+    }
 }
+
 
 
 CHANNEL_LAYERS = {
@@ -161,12 +163,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+MEDIA_URL = '/media/'
+import os
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
