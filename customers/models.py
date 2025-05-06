@@ -1,10 +1,10 @@
 from django.db import models
 from products.models import Product, Size
-from django.contrib.auth import get_user_model
+#from django.contrib.auth import get_user_model
 from django.conf import settings
 from authentication.models import Address
 
-User = get_user_model
+#User = get_user_model
 
 
 from django.db import models
@@ -107,3 +107,16 @@ class global_pool(models.Model):
         super().save(*args, **kwargs)
 
 
+
+
+from django.db import models
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    seen = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"To: {self.user.full_name} | {self.message[:30]}"

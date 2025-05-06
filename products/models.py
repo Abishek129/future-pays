@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+#from django.contrib.auth import get_user_model
 #from vendors.models import VendorDetails
 from django.utils.text import slugify
 #from django.contrib.postgres.fields import ArrayField
@@ -9,7 +9,7 @@ from django.conf import settings
 #from .utils import generate_vector
 #from pgvector.django import VectorField
 
-User = get_user_model()
+#User = get_user_model()
 
 
 class Attribute(models.Model):

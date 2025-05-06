@@ -77,13 +77,14 @@ class CartAPIView(APIView):
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
-
+from .utils import send_order_notification
 
 class BuyNowAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
+            user = request.user
             cart_id = request.data.get('cart')
             address_id = request.data.get('address')
 
@@ -109,20 +110,21 @@ class BuyNowAPIView(APIView):
             )
 
             serializer = OrderSerializer(order)
-            customer_pool = CustomerPool.objects.get(owner = request.user)
-            gp = global_pool.objects.order_by('id').first()
-            customer_pool.token = gp.end+1
-            customer_pool.save()
-            gp.end+=1
-            gp.pool_amount += 200
-            if gp.end - gp.start + 1 == 2**gp.counter:
-                gp.counter+=1
-                distribute_money(gp.pool_amount, gp.start)
-                gp.start = gp.end + 1
+            #customer_pool = CustomerPool.objects.get(owner = request.user)
+            #gp = global_pool.objects.order_by('id').first()
+            #customer_pool.token = gp.end+1
+            #customer_pool.save()
+            #gp.end+=1
+            #gp.pool_amount += 200
+            #if gp.end - gp.start + 1 == 2**gp.counter:
+            #    gp.counter+=1
+            #    distribute_money(gp.pool_amount, gp.start)
+            #    gp.start = gp.end + 1
                 
-                gp.pool_amount = 0
-            gp.save()
-            add_refferal_money(request.user)
+            #    gp.pool_amount = 0
+            #gp.save()
+            #add_refferal_money(request.user)
+            send_order_notification(user, "Your order has been shipped!")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
