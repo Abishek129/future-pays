@@ -12,5 +12,8 @@ urlpatterns = [
     path('user/address/', UserAddressListAPIView.as_view(), name = "user-address"),
     path('referal-admin/', AdminReferralCreateView.as_view(), name = 'referral-admin'),
     path('google-signup/', GoogleSignupAPIView.as_view(), name="google signup"),
-    path('google-signin/', GoogleSigninAPIView.as_view(), name="google signin")
+    path('google-signin/', GoogleSigninAPIView.as_view(), name="google signin"),
+    path('facebook-login/', FacebookLoginView.as_view(), name = 'facebook-login' ),
+    path('facebook-signup/', FacebookSignupView.as_view(), name = 'facebook-signup'),
+
 ]

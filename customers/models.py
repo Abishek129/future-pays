@@ -107,3 +107,19 @@ class global_pool(models.Model):
         super().save(*args, **kwargs)
 
 
+class Notifications(models.Model):
+    message = models.TextField()
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    seen = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255, blank=True)  # New field
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            first_word = self.message.strip().split()[0] if self.message else ''
+            self.title = f"{self.user.name} {first_word}"
+        super().save(*args, **kwargs)

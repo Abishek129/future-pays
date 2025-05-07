@@ -52,10 +52,17 @@ INSTALLED_APPS = [
     'customers',
     'admin_functions',
     'channels',
+    'social_django',
+    'rest_framework',
+
     
 ]
 
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookOAuth2',  # Facebook OAuth backend
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+)
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -98,12 +105,16 @@ import dj_database_url
 
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'future_pays',  # Your database name
+        'USER': 'abish',       # Your PostgreSQL username
+        'PASSWORD': 'newpassword',  # Your PostgreSQL password
+        'HOST': 'localhost',      # Change if running on a different host
+        'PORT': '5432',           # Default PostgreSQL port
+    }
 }
+
 
 
 from datetime import timedelta
@@ -146,6 +157,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 GOOGLE_CLIENT_ID = "685525595342-cgbm11uoa5scga8evce3d14pu2kg44bu.apps.googleusercontent.com"
 
+
+FACEBOOK_APP_ID = "1015607187330513"
+FACEBOOK_APP_SECRET = "35eea6d9c7c29c286b1f53aa1053c376"
+
+SOCIAL_AUTH_FACEBOOK_KEY = '1015607187330513'
+SOCIAL_AUTH_FACEBOOK_SECRET = '35eea6d9c7c29c286b1f53aa1053c376'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']  # Only request the email
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'fields': 'email'}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',

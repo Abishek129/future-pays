@@ -207,6 +207,7 @@ class GoogleSignupAPIView(APIView):
             traceback.print_exc()
             return Response({"error": str(e)}, status=500)
 
+from google.auth.transport import requests as google_requests
 
 
 class GoogleSigninAPIView(APIView):
@@ -215,10 +216,11 @@ class GoogleSigninAPIView(APIView):
             id_token_from_client = request.data.get('id_token')
             #input_referral_code = request.data.get("referral_code")
             id_info = id_token.verify_oauth2_token(
-                id_token_from_client,
-                requests.Request(),
-                settings.GOOGLE_CLIENT_ID
+            id_token_from_client,
+            google_requests.Request(),  # 🔥 This is the correct callable
+            settings.GOOGLE_CLIENT_ID
             )
+
 
             email = id_info['email']
             name = id_info.get('name', '')
@@ -248,3 +250,113 @@ class GoogleSigninAPIView(APIView):
             print("===== GOOGLE SIGNUP ERROR =====")
             traceback.print_exc()
             return Response({"error": str(e)}, status=500)
+        
+
+
+
+
+import requests
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken  # For JWT token
+  # For JWT token
+
+class FacebookSignupView(APIView):
+    def post(self, request):
+        access_token = request.data.get('access_token')
+
+        if not access_token:
+            return Response({"error": "Access token is missing."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verify the access token using Facebook Graph API
+        user_data = self.verify_facebook_token(access_token)
+        
+        if user_data:
+            # Check if the user already exists or create a new user
+            if User.objects.filter(email=user_data['email']).exists():
+                return JsonResponse({"error": "User with email already exists"}, status=400)
+
+            user = User.objects.create(email=user_data['email'])
+
+                        
+            user.set_unusable_password()
+            user.save()
+
+            
+
+            # Generate JWT token
+            jwt_token = self.get_jwt_token(user)
+            print(jwt_token)
+            return Response({"token": jwt_token}, status=status.HTTP_200_OK)
+        
+        return Response({"error": "Invalid access token."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def verify_facebook_token(self, access_token):
+        """Verify the Facebook access token using Graph API."""
+        url = f'https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email'
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+
+    def get_jwt_token(self, user):
+        """Generate a JWT token for the user."""
+        refresh = RefreshToken.for_user(user)  # Generate refresh token for the user
+        access_token = refresh.access_token  # Get the access token from the refresh token
+        
+        # You can also return the refresh token if needed
+        return {
+            'access': str(access_token),  # Return access token as string
+            'refresh': str(refresh),      # Return refresh token as string (optional)
+        }
+
+        
+
+class FacebookLoginView(APIView):
+    def post(self, request):
+        access_token = request.data.get('access_token')
+
+        if not access_token:
+            return Response({"error": "Access token is missing."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verify the access token using Facebook Graph API
+        user_data = self.verify_facebook_token(access_token)
+        
+        if user_data:
+            # Check if the user already exists or create a new user
+            if not User.objects.filter(email=user_data['email']).exists():
+                return JsonResponse({"error": "User with email doesnot  exists"}, status=400)
+            user= User.objects.get(email=user_data['email'])
+
+            
+
+            # Generate JWT token
+            jwt_token = self.get_jwt_token(user)
+            print(jwt_token)
+            return Response({"token": jwt_token}, status=status.HTTP_200_OK)
+        
+        return Response({"error": "Invalid access token."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def verify_facebook_token(self, access_token):
+        """Verify the Facebook access token using Graph API."""
+        url = f'https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email'
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+
+    def get_jwt_token(self, user):
+        """Generate a JWT token for the user."""
+        refresh = RefreshToken.for_user(user)  # Generate refresh token for the user
+        access_token = refresh.access_token  # Get the access token from the refresh token
+        
+        # You can also return the refresh token if needed
+        return {
+            'access': str(access_token),  # Return access token as string
+            'refresh': str(refresh),      # Return refresh token as string (optional)
+        }

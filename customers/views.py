@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
-from .models import Cart, global_pool
+from .models import Cart, global_pool, Notifications
 from products.models import Size, Product
-from .serializers import CartSerializer
+from .serializers import CartSerializer, NotificationSerializer
 from .tasks import distribute_money, add_refferal_money
 
 
@@ -73,10 +73,31 @@ class CartAPIView(APIView):
         }
         return Response(data, status=200)
 
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+class UserNotificationsView(ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return Notifications.objects.filter(user=self.request.user).order_by('-timestamp')
 
 from rest_framework import viewsets, permissions, status
-from rest_framework.views import APIView
+
+
+from .models import Notifications
+
+def create_notification(user, message):
+    """
+    Creates a notification for the given user with the provided message.
+    Automatically sets the title and timestamp.
+    """
+    if not user or not message:
+        raise ValueError("Both user and message are required to create a notification.")
+    
+    notification = Notifications(user=user, message=message)
+    notification.save()
+    return notification
 
 
 class BuyNowAPIView(APIView):
@@ -109,20 +130,21 @@ class BuyNowAPIView(APIView):
             )
 
             serializer = OrderSerializer(order)
-            customer_pool = CustomerPool.objects.get(owner = request.user)
-            gp = global_pool.objects.order_by('id').first()
-            customer_pool.token = gp.end+1
-            customer_pool.save()
-            gp.end+=1
-            gp.pool_amount += 200
-            if gp.end - gp.start + 1 == 2**gp.counter:
-                gp.counter+=1
-                distribute_money(gp.pool_amount, gp.start)
-                gp.start = gp.end + 1
+            #customer_pool = CustomerPool.objects.get(owner = request.user)
+            #gp = global_pool.objects.order_by('id').first()
+            #customer_pool.token = gp.end+1
+            #customer_pool.save()
+            #gp.end+=1
+            #gp.pool_amount += 200
+            #if gp.end - gp.start + 1 == 2**gp.counter:
+            #    gp.counter+=1
+            #    distribute_money(gp.pool_amount, gp.start)
+            #    gp.start = gp.end + 1
                 
-                gp.pool_amount = 0
-            gp.save()
-            add_refferal_money(request.user)
+            #    gp.pool_amount = 0
+            #gp.save()
+            #add_refferal_money(request.user)
+            create_notification(user=request.user, message = "your order has been placed")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -140,3 +162,18 @@ class BuyNowAPIView(APIView):
 
 
 
+class HasNewNotificationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        has_unseen = Notifications.objects.filter(user=request.user, seen=False).exists()
+        return Response({"new_notifications": has_unseen})
+    
+
+
+class MarkAllNotificationsSeenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        updated_count = Notifications.objects.filter(user=request.user, seen=False).update(seen=True)
+        return Response({"updated": updated_count, "message": "All unseen notifications marked as seen."})
