@@ -177,3 +177,16 @@ class MarkAllNotificationsSeenView(APIView):
     def post(self, request):
         updated_count = Notifications.objects.filter(user=request.user, seen=False).update(seen=True)
         return Response({"updated": updated_count, "message": "All unseen notifications marked as seen."})
+    
+
+
+
+
+class UserCartView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        cart_items = Cart.objects.filter(user=user).order_by('-id')  # or by any timestamp if available
+        serializer = CartSerializer(cart_items, many=True)
+        return Response(serializer.data)

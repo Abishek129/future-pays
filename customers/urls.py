@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CartViewSet,  BuyNowAPIView, CartAPIView, HasNewNotificationsView, MarkAllNotificationsSeenView
+from .views import CartViewSet,  BuyNowAPIView, CartAPIView, HasNewNotificationsView, MarkAllNotificationsSeenView, UserCartView
 
 router = DefaultRouter()
 #router.register(r'buy-now', BuyNpwViewSet, basename="butnow")
@@ -16,6 +16,7 @@ urlpatterns = [
     path('carts/<int:cart_id>/', CartAPIView.as_view()),
     path('unseen/notifications/', HasNewNotificationsView.as_view(), name = "unseen-notifications"),
     path('mark-notifications/', MarkAllNotificationsSeenView.as_view(), name = "mark-notifications"),
+    path('latest-cart/', UserCartView.as_view(), name = "latest-cart")
     
     
 ]
