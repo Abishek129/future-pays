@@ -192,3 +192,14 @@ class LatestCartItemView(APIView):
             serializer = CartSerializer(latest_item)
             return Response(serializer.data)
         return Response({"detail": "No cart item found."}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
+class UserNotificationsView(ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notifications.objects.filter(user=self.request.user).order_by('-timestamp')
