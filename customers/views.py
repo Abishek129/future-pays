@@ -182,11 +182,13 @@ class MarkAllNotificationsSeenView(APIView):
 
 
 
-class UserCartView(APIView):
+class LatestCartItemView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        cart_items = Cart.objects.filter(user=user).order_by('-id')  # or by any timestamp if available
-        serializer = CartSerializer(cart_items, many=True)
-        return Response(serializer.data)
+        latest_item = Cart.objects.filter(user=user).order_by('-id').first()  # Or use a DateTimeField if available
+        if latest_item:
+            serializer = CartSerializer(latest_item)
+            return Response(serializer.data)
+        return Response({"detail": "No cart item found."}, status=status.HTTP_404_NOT_FOUND)

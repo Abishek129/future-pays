@@ -133,7 +133,7 @@ class AdminReferralCreateView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED
         )
     
-
+from google.auth.transport import requests as google_requests
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -207,7 +207,7 @@ class GoogleSignupAPIView(APIView):
             traceback.print_exc()
             return Response({"error": str(e)}, status=500)
 
-from google.auth.transport import requests as google_requests
+
 
 
 class GoogleSigninAPIView(APIView):
