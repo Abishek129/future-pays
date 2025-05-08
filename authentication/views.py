@@ -152,9 +152,9 @@ class GoogleSignupAPIView(APIView):
             id_token_from_client = request.data.get('id_token')
             input_referral_code = request.data.get("referral_code")
             id_info = id_token.verify_oauth2_token(
-                id_token_from_client,
-                requests.Request(),
-                settings.GOOGLE_CLIENT_ID
+            id_token_from_client,
+            google_requests.Request(),  # 🔥 This is the correct callable
+            settings.GOOGLE_CLIENT_ID
             )
 
             email = id_info['email']
