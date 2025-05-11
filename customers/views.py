@@ -1,5 +1,5 @@
 from rest_framework import viewsets, generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Cart, global_pool, Notifications
 from products.models import Size, Product
 from .serializers import CartSerializer, NotificationSerializer
@@ -107,7 +107,8 @@ class BuyNowAPIView(APIView):
         try:
             cart_id = request.data.get('cart')
             address_id = request.data.get('address')
-
+            
+            
             if not cart_id or not address_id:
                 return Response({'error': 'Cart and Address are required.'}, status=400)
 
@@ -130,19 +131,20 @@ class BuyNowAPIView(APIView):
             )
 
             serializer = OrderSerializer(order)
-            #customer_pool = CustomerPool.objects.get(owner = request.user)
-            #gp = global_pool.objects.order_by('id').first()
-            #customer_pool.token = gp.end+1
-            #customer_pool.save()
-            #gp.end+=1
-            #gp.pool_amount += 200
-            #if gp.end - gp.start + 1 == 2**gp.counter:
-            #    gp.counter+=1
-            #    distribute_money(gp.pool_amount, gp.start)
-            #    gp.start = gp.end + 1
+            customer_pool = CustomerPool.objects.filter(owner = request.user).first()
+            gp = global_pool.objects.order_by('id').first()
+            customer_pool.token = gp.end+1
+            customer_pool.save()
+            gp.end+=1
+            gp.pool_amount += 200
+            if gp.end - gp.start + 1 == 2**gp.counter:
+                gp.counter+=1
+                distribute_money(gp.pool_amount, gp.start)
+                gp.start = gp.end + 1
                 
-            #    gp.pool_amount = 0
-            #gp.save()
+                gp.pool_amount = 0
+                gp.total_window_amount = 200 * 2**gp.counter
+            gp.save()
             #add_refferal_money(request.user)
             create_notification(user=request.user, message = "your order has been placed")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -203,3 +205,16 @@ class UserNotificationsView(ListAPIView):
 
     def get_queryset(self):
         return Notifications.objects.filter(user=self.request.user).order_by('-timestamp')
+    
+
+
+class AdminCustomerPoolCreate(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        if CustomerPool.objects.filter(token=1).exists():
+            return Response({"message": "AdminPool already created"}, status=status.HTTP_204_NO_CONTENT)
+        CustomerPool.objects.create(owner = request.user, token = 1)
+        return Response({"message": "Admin Pool created"}, status=status.HTTP_200_OK)
+    
+

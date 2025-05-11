@@ -5,14 +5,22 @@ from authentication.models import CustomerPool, Referral
 
 def distribute_money(amount, start):
     distribute_amount = amount/(start-1)
+    #admin = CustomerPool.objects.filter(token = 1).first()
+    amount = 0
+    print(distribute_amount)
     for i in range(1, start):
-        customer_pool = CustomerPool.objects.get(token = i)
-        if not customer_pool.is_active:
-            admin_account = CustomerPool.objects.get(token = 1)
-            admin_account.wallet += distribute_amount 
-            admin_account.save()
+        customer_pool = CustomerPool.objects.filter(token = i).first()
+        if not customer_pool or not customer_pool.is_active:
+            
+            amount += distribute_amount 
+            
             continue
+        print(customer_pool.wallet, "before")
         customer_pool.wallet += distribute_amount
+        print(customer_pool.wallet, "after")
+        print(customer_pool.owner)
+        customer_pool.save()
+    #admin.save()
 
     return
 

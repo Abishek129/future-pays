@@ -104,13 +104,15 @@ import os
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'future_pays',  # Your database name
+        'USER': 'abish',       # Your PostgreSQL username
+        'PASSWORD': 'newpassword',  # Your PostgreSQL password
+        'HOST': 'localhost',      # Change if running on a different host
+        'PORT': '5432',           # Default PostgreSQL port
+    }
 }
-
 
 
 from datetime import timedelta

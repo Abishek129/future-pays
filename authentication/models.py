@@ -184,7 +184,7 @@ class CustomerPool(models.Model):
     )
     token = models.BigIntegerField(default=-1)
     is_active = models.BooleanField(default=True)
-    wallet = models.IntegerField(default=0)
+    wallet = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
 
 
 
