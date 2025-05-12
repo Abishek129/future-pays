@@ -324,6 +324,7 @@ class FacebookLoginView(APIView):
 
         # Verify the access token using Facebook Graph API
         user_data = self.verify_facebook_token(access_token)
+        print(access_token)
         
         if user_data:
             # Check if the user already exists or create a new user
