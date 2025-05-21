@@ -336,7 +336,7 @@ class FacebookLoginView(APIView):
 
             # Generate JWT token
             jwt_token = self.get_jwt_token(user)
-            print(jwt_token)
+            #print(jwt_token)
             return Response({"token": jwt_token}, status=status.HTTP_200_OK)
         
         return Response({"error": "Invalid access token."}, status=status.HTTP_400_BAD_REQUEST)
@@ -361,3 +361,14 @@ class FacebookLoginView(APIView):
             'access': str(access_token),  # Return access token as string
             'refresh': str(refresh),      # Return refresh token as string (optional)
         }
+    
+
+class ChangemailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        email = request.data.get('email')
+        user.email = email
+        user.save()
+        return Response({"message": "email-changed"}, status=status.HTTP_201_CREATED)

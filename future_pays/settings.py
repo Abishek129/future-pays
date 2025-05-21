@@ -39,7 +39,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
-    
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'channels',
     'social_django',
     'rest_framework',
-
+    
     
 ]
 
@@ -93,6 +93,7 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "future_pays.asgi.application"
 WSGI_APPLICATION = 'future_pays.wsgi.application'
 
 
@@ -112,7 +113,6 @@ DATABASES = {
 }
 
 
-
 from datetime import timedelta
 
 SIMPLE_JWT = {
@@ -121,14 +121,8 @@ SIMPLE_JWT = {
 }
 
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],
-        },
-    },
-}
+
+
 
 
 

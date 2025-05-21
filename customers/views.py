@@ -100,6 +100,9 @@ def create_notification(user, message):
     return notification
 
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 class BuyNowAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -131,22 +134,30 @@ class BuyNowAPIView(APIView):
             )
 
             serializer = OrderSerializer(order)
-            customer_pool = CustomerPool.objects.filter(owner = request.user).first()
-            gp = global_pool.objects.order_by('id').first()
-            customer_pool.token = gp.end+1
-            customer_pool.save()
-            gp.end+=1
-            gp.pool_amount += 200
-            if gp.end - gp.start + 1 == 2**gp.counter:
-                gp.counter+=1
-                distribute_money(gp.pool_amount, gp.start)
-                gp.start = gp.end + 1
+            #customer_pool = CustomerPool.objects.filter(owner = request.user).first()
+            #gp = global_pool.objects.order_by('id').first()
+            #customer_pool.token = gp.end+1
+            #customer_pool.save()
+            #gp.end+=1
+            #gp.pool_amount += 200
+            #if gp.end - gp.start + 1 == 2**gp.counter:
+            #    gp.counter+=1
+            #    distribute_money(gp.pool_amount, gp.start)
+            #    gp.start = gp.end + 1
                 
-                gp.pool_amount = 0
-                gp.total_window_amount = 200 * 2**gp.counter
-            gp.save()
+            #    gp.pool_amount = 0
+            #    gp.total_window_amount = 200 * 2**gp.counter
+            #gp.save()
             #add_refferal_money(request.user)
-            create_notification(user=request.user, message = "your order has been placed")
+            #create_notification(user=request.user, message = "your order has been placed")
+            #channel_layer = get_channel_layer()
+            #async_to_sync(channel_layer.group_send)(
+            #    "orders",  # same group name used in consumer
+            #    {
+            #        "type": "order_placed",
+            #        "message": "New order has been placed!"
+            #    }
+            #)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:

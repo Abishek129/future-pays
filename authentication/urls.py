@@ -15,5 +15,6 @@ urlpatterns = [
     path('google-signin/', GoogleSigninAPIView.as_view(), name="google signin"),
     path('facebook-login/', FacebookLoginView.as_view(), name = 'facebook-login' ),
     path('facebook-signup/', FacebookSignupView.as_view(), name = 'facebook-signup'),
+    path('email-change/', ChangemailView.as_view(), name = "email-change"),
 
 ]
